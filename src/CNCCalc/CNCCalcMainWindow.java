@@ -16,8 +16,8 @@ import java.util.regex.Pattern;
 public class CNCCalcMainWindow extends javax.swing.JFrame {
 
     static final String floatRegex = "[-+]?[0-9]*\\.?[0-9]+";
-    Pattern regexPattern;
 
+    enum OpType { ADD, MULTIPLY, DIVIDE, NEGATE, NONE };
     
     /**
      * Creates new form CNCCalcMainWindow
@@ -49,6 +49,9 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
         jCbOperation = new javax.swing.JComboBox();
         jBtnCalculate = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jBtnMoveTo1st = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -72,7 +75,7 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
 
         jLabel3.setText("Operation");
 
-        jCbOperation.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Addition", "Multiplikation", "Division" }));
+        jCbOperation.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Addition", "Multiplikation", "Division", "Spegla" }));
 
         jBtnCalculate.setText("Räkna!");
         jBtnCalculate.addActionListener(new java.awt.event.ActionListener() {
@@ -116,7 +119,7 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(jLabel2)
                     .addComponent(jLabel3))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTfAdress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTfValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -125,23 +128,56 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
                     .addComponent(jLabel4)))
         );
 
+        jLabel5.setText("Startkod");
+
+        jLabel6.setText("Beräknad kod");
+
+        jBtnMoveTo1st.setText("<--");
+        jBtnMoveTo1st.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBtnMoveTo1stActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2))
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel5))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jBtnMoveTo1st)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane2)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel6)
+                        .addGap(437, 437, 437))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel6))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 515, Short.MAX_VALUE)
-                    .addComponent(jScrollPane2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 489, Short.MAX_VALUE)
+                            .addComponent(jScrollPane2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(63, 63, 63)
+                        .addComponent(jBtnMoveTo1st)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -151,6 +187,12 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
     private void jBtnCalculateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnCalculateActionPerformed
         calculate();
     }//GEN-LAST:event_jBtnCalculateActionPerformed
+
+    private void jBtnMoveTo1stActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnMoveTo1stActionPerformed
+        jTaInputArea.setText(jTaOutputArea.getText());
+        jTaOutputArea.setText("");
+        
+    }//GEN-LAST:event_jBtnMoveTo1stActionPerformed
 
     /**
      * @param args the command line arguments
@@ -189,11 +231,14 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jBtnCalculate;
+    private javax.swing.JButton jBtnMoveTo1st;
     private javax.swing.JComboBox jCbOperation;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -203,22 +248,42 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
     private javax.swing.JTextField jTfValue;
     // End of variables declaration//GEN-END:variables
 
-    private void calculate() {
-        String regex = jTfAdress.getText() + floatRegex ;
-        regexPattern = Pattern.compile(regex);
-        for (String line : jTaInputArea.getText().split("\\n")) {
-            System.out.println("Före :" + line);
-            line = reCalcLine(line);
-            jTaOutputArea.append( line + "\n" );
-            System.out.println("Efter :" + line);
 
+    private OpType getOperation() {
+        switch ( (String)jCbOperation.getSelectedItem() ) {
+            case "Spegla" : 
+                return OpType.NEGATE;
+            case "Addition" :
+                return OpType.ADD;
+            case "Division" : 
+                return OpType.DIVIDE;
+            case "Multiplikation" :
+                return OpType.MULTIPLY;
+            default : 
+        }
+        return OpType.NONE;
+    }
+
+    private String swapCodes(String line, String s1, String s2) {
+        String placeHolder = "§§§";
+        line = line.replaceAll(s1, placeHolder);
+        line = line.replaceAll(s2, s1);
+        line = line.replaceAll(placeHolder, s2);
+        return line;
+    }
+
+    
+    private void calculate() {
+        if ( ((String) jCbOperation.getSelectedItem()).equals("Spegla") ) {
+            mirror();
+        } else {
+            aritCalc();
         }
     }
     
-    private String reCalcLine(String line) {
+    private String reCalcLine(String line, String address, Pattern regexPattern, OpType operation) {
         Matcher m = regexPattern.matcher(line);
         String resultLine = line;
-        String adress = jTfAdress.getText();
         double numberToAdd = Double.parseDouble(jTfValue.getText());
         boolean found = false;
         int relIndex = 0;
@@ -227,7 +292,7 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
             String s = m.group();
             resultLine = resultLine.substring(0, m.start()+relIndex);
             //System.out.println("Hittat " + ncLetter + " : " + s );
-            s = adress + operateOnNumber(s.substring(1) , numberToAdd );
+            s = address + operateOnNumber(s.substring(1) , numberToAdd, operation );
             relIndex += s.length() - m.end() + m.start() ;
             //System.out.println("Ändrat till : " + s );
             resultLine += s + line.substring(m.end(), line.length() );
@@ -236,18 +301,20 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
         else return resultLine;
     }
 
-    private String operateOnNumber(String numString, double value) {
+    private String operateOnNumber(String numString, double value, OpType operation) {
         Double number = Double.parseDouble(numString);
-        String operation = (String) jCbOperation.getSelectedItem();
         switch (operation ) {
-            case "Addition" :
+            case ADD :
                 number += value ;
                 break;
-            case "Multiplikation" : 
+            case MULTIPLY : 
                 number *= value;
                 break;
-            case "Division" :
+            case DIVIDE :
                 number /= value;
+                break;
+            case NEGATE :
+                number = -number;
                 break;
             default : ;
         }
@@ -256,6 +323,63 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
         return numString.replaceAll(",", ".");
     }
 
+    private void aritCalc() {
+        String address = jTfAdress.getText();
+        String regex = address + floatRegex ;
+        Pattern regexPattern = Pattern.compile(regex);
+        OpType operation = getOperation();
+        for (String line : jTaInputArea.getText().split("\\n")) {
+            System.out.println("Före :" + line);
+            line = reCalcLine(line, address, regexPattern, operation );
+            jTaOutputArea.append( line + "\n" );
+            System.out.println("Efter :" + line);
+
+        }
+
+    }
+
     
+    private void mirror() {
+        String mirrorAxis = jTfAdress.getText();
+        String mirrorAxisRegex = mirrorAxis + floatRegex;
+        Pattern mARegexPattern = Pattern.compile(mirrorAxisRegex);
+        
+        String ijkAdress;
+        switch (jTfAdress.getText()) {
+            case "X" :
+                ijkAdress = "I";
+                break;
+            case "Y" :
+                ijkAdress = "J";
+                break;
+            case "Z" :
+                ijkAdress = "K";
+                break;
+            default : 
+                ijkAdress = "";
+        }
+        
+        String arcCenterAxisRegex = ijkAdress + floatRegex;
+        Pattern aCRegexPattern = Pattern.compile(arcCenterAxisRegex);
+        
+        for (String line : jTaInputArea.getText().split("\\n")) {
+            System.out.println("Före :" + line);
+            line = reCalcLine(line, mirrorAxis, mARegexPattern, OpType.NEGATE);
+
+            // Change G41 to G42 and vv
+            line = swapCodes( line, "G41", "G42");
+
+            // Change G02 to G03 and vv
+            line = swapCodes(line, "G2", "G3");
+            line = swapCodes(line, "G02", "G03");
+            
+            line = reCalcLine(line, ijkAdress, aCRegexPattern, OpType.NEGATE );
+            
+            jTaOutputArea.append(line + "\n");
+            System.out.println("Efter :" + line);
+        }
+
+    }
+
     
 }

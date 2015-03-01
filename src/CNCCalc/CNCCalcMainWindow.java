@@ -8,6 +8,7 @@ package CNCCalc;
 import java.text.DecimalFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.DefaultComboBoxModel;
 
 /**
  *
@@ -16,8 +17,21 @@ import java.util.regex.Pattern;
 public class CNCCalcMainWindow extends javax.swing.JFrame {
 
     static final String floatRegex = "[-+]?[0-9]*\\.?[0-9]+";
+    static final String[] opMenuSelections = { "Addition",
+                                               "Multiplikation",
+                                               "Division",
+                                               "Spegla",
+                                               "Rotera 90+"    };
 
-    enum OpType { ADD, MULTIPLY, DIVIDE, NEGATE, NONE };
+
+    enum OpType { ADD, MULTIPLY, DIVIDE, NEGATE, ROTATE90P, NONE };
+    
+    static final OpType[] operationTypes = { OpType.ADD,
+                                             OpType.MULTIPLY,
+                                             OpType.DIVIDE,
+                                             OpType.NEGATE,
+                                             OpType.ROTATE90P
+    };
     
     /**
      * Creates new form CNCCalcMainWindow
@@ -75,7 +89,7 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
 
         jLabel3.setText("Operation");
 
-        jCbOperation.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Addition", "Multiplikation", "Division", "Spegla" }));
+        jCbOperation.setModel(new DefaultComboBoxModel(opMenuSelections));
 
         jBtnCalculate.setText("Räkna!");
         jBtnCalculate.addActionListener(new java.awt.event.ActionListener() {
@@ -98,14 +112,14 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
                         .addGap(46, 46, 46)
                         .addComponent(jLabel3)
                         .addGap(867, 867, 867))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jTfValue, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jCbOperation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jCbOperation, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jBtnCalculate)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -250,16 +264,11 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
 
 
     private OpType getOperation() {
-        switch ( (String)jCbOperation.getSelectedItem() ) {
-            case "Spegla" : 
-                return OpType.NEGATE;
-            case "Addition" :
-                return OpType.ADD;
-            case "Division" : 
-                return OpType.DIVIDE;
-            case "Multiplikation" :
-                return OpType.MULTIPLY;
-            default : 
+        String selItem = (String) jCbOperation.getSelectedItem();
+        for ( int i = 0 ; i < opMenuSelections.length ; i++ ) {
+            if ( selItem.equals( opMenuSelections[i]) ) {
+                return operationTypes[i];
+            }
         }
         return OpType.NONE;
     }
@@ -274,10 +283,16 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
 
     
     private void calculate() {
-        if ( ((String) jCbOperation.getSelectedItem()).equals("Spegla") ) {
-            mirror();
-        } else {
-            aritCalc();
+        OpType operation = getOperation();
+        switch (operation ) {
+            case NEGATE : 
+                mirror();
+                break;
+            case ROTATE90P : 
+                rotate90p();
+                break;
+            default :
+                aritCalc();
         }
     }
     
@@ -345,7 +360,7 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
         Pattern mARegexPattern = Pattern.compile(mirrorAxisRegex);
         
         String ijkAdress;
-        switch (jTfAdress.getText()) {
+        switch ( mirrorAxis ) {
             case "X" :
                 ijkAdress = "I";
                 break;
@@ -380,6 +395,105 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
         }
 
     }
+    
+    
+    class RotateInfo {
+
+        String iAdress, jAdress, xAdress, yAdress;
+        String planeAxis;
+        String arcXAxisRegex;
+        String arcYAxisRegex;
+        String arcIAxisRegex;
+        String arcJAxisRegex;
+
+        Pattern aXRegexPattern;
+        Pattern aYRegexPattern;
+        Pattern aIRegexPattern;
+        Pattern aJRegexPattern;
+        
+        public RotateInfo(String planeAxis) {
+            this.planeAxis = planeAxis;
+            switch (planeAxis) {
+                case "Z":
+                    xAdress = "X";
+                    yAdress = "Y";
+                    iAdress = "I";
+                    jAdress = "J";
+                    break;
+                case "Y":
+                    xAdress = "X";
+                    yAdress = "Z";
+                    iAdress = "I";
+                    jAdress = "K";
+                    break;
+                case "X":
+                    xAdress = "Z";
+                    yAdress = "Y";
+                    iAdress = "J";
+                    jAdress = "K";
+                    break;
+                default:
+                    xAdress = "";
+                    xAdress = "";
+                    yAdress = "";
+                    iAdress = "";
+                    jAdress = "";
+        }
+        
+        arcXAxisRegex = xAdress + floatRegex;
+        aXRegexPattern = Pattern.compile(arcXAxisRegex);
+        
+        arcYAxisRegex = yAdress + floatRegex;
+        aYRegexPattern = Pattern.compile(arcYAxisRegex);
+        
+        arcIAxisRegex = iAdress + floatRegex;
+        aIRegexPattern = Pattern.compile(arcIAxisRegex);
+        
+        arcJAxisRegex = jAdress + floatRegex;
+        aJRegexPattern = Pattern.compile(arcJAxisRegex);
+        }
+        
+    }
+    
+    private void rotate90p() {
+        RotateInfo rotateInfo = new RotateInfo( jTfAdress.getText());
+
+
+        for (String line : jTaInputArea.getText().split("\\n")) {
+            System.out.println("Före :" + line);
+            line = rotateLine(line, rotateInfo);
+
+            jTaOutputArea.append(line + "\n");
+            System.out.println("Efter :" + line);
+        }
+
+    }
+    
+    private String rotateLine(String line, RotateInfo rotateInfo) {
+        Matcher m = rotateInfo.aXRegexPattern.matcher(line);
+
+        
+        
+//        String resultLine = line;
+//        double numberToAdd = Double.parseDouble(jTfValue.getText());
+//        boolean found = false;
+//        int relIndex = 0;
+//        while ( m.find() ) {
+//            found = true;
+//            String s = m.group();
+//            resultLine = resultLine.substring(0, m.start()+relIndex);
+//            //System.out.println("Hittat " + ncLetter + " : " + s );
+//            s = address + operateOnNumber(s.substring(1) , numberToAdd, operation );
+//            relIndex += s.length() - m.end() + m.start() ;
+//            //System.out.println("Ändrat till : " + s );
+//            resultLine += s + line.substring(m.end(), line.length() );
+//        }
+//        if ( !found ) return line;
+//        else return resultLine;
+//        
+        return null;
+    }
+
 
     
 }

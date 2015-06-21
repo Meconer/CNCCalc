@@ -24,12 +24,12 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
                                                "Rotera 90+"    };
 
 
-    enum OpType { ADD, MULTIPLY, DIVIDE, NEGATE, ROTATE90P, NONE };
+    enum OpType { ADD, MULTIPLY, DIVIDE, MIRROR, ROTATE90P, NONE };
     
     static final OpType[] operationTypes = { OpType.ADD,
                                              OpType.MULTIPLY,
                                              OpType.DIVIDE,
-                                             OpType.NEGATE,
+                                             OpType.MIRROR,
                                              OpType.ROTATE90P
     };
     
@@ -285,7 +285,7 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
     private void calculate() {
         OpType operation = getOperation();
         switch (operation ) {
-            case NEGATE : 
+            case MIRROR : 
                 mirror();
                 break;
             case ROTATE90P : 
@@ -328,7 +328,7 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
             case DIVIDE :
                 number /= value;
                 break;
-            case NEGATE :
+            case MIRROR :
                 number = -number;
                 break;
             default : ;
@@ -379,7 +379,7 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
         
         for (String line : jTaInputArea.getText().split("\\n")) {
             System.out.println("Före :" + line);
-            line = reCalcLine(line, mirrorAxis, mARegexPattern, OpType.NEGATE);
+            line = reCalcLine(line, mirrorAxis, mARegexPattern, OpType.MIRROR);
 
             // Change G41 to G42 and vv
             line = swapCodes( line, "G41", "G42");
@@ -388,7 +388,7 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
             line = swapCodes(line, "G2", "G3");
             line = swapCodes(line, "G02", "G03");
             
-            line = reCalcLine(line, ijkAdress, aCRegexPattern, OpType.NEGATE );
+            line = reCalcLine(line, ijkAdress, aCRegexPattern, OpType.MIRROR );
             
             jTaOutputArea.append(line + "\n");
             System.out.println("Efter :" + line);
@@ -397,103 +397,18 @@ public class CNCCalcMainWindow extends javax.swing.JFrame {
     }
     
     
-    class RotateInfo {
-
-        String iAdress, jAdress, xAdress, yAdress;
-        String planeAxis;
-        String arcXAxisRegex;
-        String arcYAxisRegex;
-        String arcIAxisRegex;
-        String arcJAxisRegex;
-
-        Pattern aXRegexPattern;
-        Pattern aYRegexPattern;
-        Pattern aIRegexPattern;
-        Pattern aJRegexPattern;
-        
-        public RotateInfo(String planeAxis) {
-            this.planeAxis = planeAxis;
-            switch (planeAxis) {
-                case "Z":
-                    xAdress = "X";
-                    yAdress = "Y";
-                    iAdress = "I";
-                    jAdress = "J";
-                    break;
-                case "Y":
-                    xAdress = "X";
-                    yAdress = "Z";
-                    iAdress = "I";
-                    jAdress = "K";
-                    break;
-                case "X":
-                    xAdress = "Z";
-                    yAdress = "Y";
-                    iAdress = "J";
-                    jAdress = "K";
-                    break;
-                default:
-                    xAdress = "";
-                    xAdress = "";
-                    yAdress = "";
-                    iAdress = "";
-                    jAdress = "";
-        }
-        
-        arcXAxisRegex = xAdress + floatRegex;
-        aXRegexPattern = Pattern.compile(arcXAxisRegex);
-        
-        arcYAxisRegex = yAdress + floatRegex;
-        aYRegexPattern = Pattern.compile(arcYAxisRegex);
-        
-        arcIAxisRegex = iAdress + floatRegex;
-        aIRegexPattern = Pattern.compile(arcIAxisRegex);
-        
-        arcJAxisRegex = jAdress + floatRegex;
-        aJRegexPattern = Pattern.compile(arcJAxisRegex);
-        }
-        
-    }
-    
     private void rotate90p() {
         RotateInfo rotateInfo = new RotateInfo( jTfAdress.getText());
 
 
         for (String line : jTaInputArea.getText().split("\\n")) {
             System.out.println("Före :" + line);
-            line = rotateLine(line, rotateInfo);
+            line = rotateInfo.rotateLine( line );
+            //line = rotateLine(line, rotateInfo);
 
             jTaOutputArea.append(line + "\n");
             System.out.println("Efter :" + line);
         }
 
     }
-    
-    private String rotateLine(String line, RotateInfo rotateInfo) {
-        Matcher m = rotateInfo.aXRegexPattern.matcher(line);
-
-        
-        
-//        String resultLine = line;
-//        double numberToAdd = Double.parseDouble(jTfValue.getText());
-//        boolean found = false;
-//        int relIndex = 0;
-//        while ( m.find() ) {
-//            found = true;
-//            String s = m.group();
-//            resultLine = resultLine.substring(0, m.start()+relIndex);
-//            //System.out.println("Hittat " + ncLetter + " : " + s );
-//            s = address + operateOnNumber(s.substring(1) , numberToAdd, operation );
-//            relIndex += s.length() - m.end() + m.start() ;
-//            //System.out.println("Ändrat till : " + s );
-//            resultLine += s + line.substring(m.end(), line.length() );
-//        }
-//        if ( !found ) return line;
-//        else return resultLine;
-//        
-        return null;
-    }
-
-
-    
 }
